@@ -67,9 +67,15 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    // console.error('Error fetching work plans:', error);
+    const err = error as Error;
+    console.error('Error fetching work plans:', err.message, err.cause);
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch work plans' },
+      { 
+        success: false, 
+        message: 'Failed to fetch work plans',
+        detail: err.message,
+        hint: 'ตรวจสอบว่า Backend รันอยู่ที่ ' + API_BASE_URL + ' หรือไม่'
+      },
       { status: 500 }
     );
   }

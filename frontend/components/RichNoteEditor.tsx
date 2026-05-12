@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -19,7 +19,6 @@ type RichNoteEditorProps = {
 // Minimal TipTap wrapper focused on responsiveness and small feature set
 const RichNoteEditor: React.FC<RichNoteEditorProps> = ({ value, onChange, className = "", placeholder = "พิมพ์หมายเหตุ...", debounceMs = 400 }) => {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastExternalValueRef = useRef<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -48,6 +47,11 @@ const RichNoteEditor: React.FC<RichNoteEditorProps> = ({ value, onChange, classN
         onChange(text);
       }, debounceMs);
     },
+    onBlur: ({ editor }) => {
+      // Flush latest value immediately when focus leaves editor
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      onChange(editor.getText());
+    },
   });
 
   useEffect(() => {
@@ -55,17 +59,25 @@ const RichNoteEditor: React.FC<RichNoteEditorProps> = ({ value, onChange, classN
     // Only sync external value when editor is not focused to avoid jitter
     const current = editor.getText();
     const incoming = value || "";
-    const shouldForceUpdate = incoming === "";
 
-    if ((shouldForceUpdate || !editor.isFocused) && incoming !== current && lastExternalValueRef.current !== value) {
-      lastExternalValueRef.current = incoming;
-      if (incoming === "") {
+    // Always allow external empty value to clear editor content.
+    if (incoming === "") {
+      if (!editor.isEmpty || current !== "") {
         editor.commands.clearContent(true);
-      } else {
-        editor.commands.setContent(incoming.replace(/\n/g, "<br>"));
       }
+      return;
+    }
+
+    if (!editor.isFocused && incoming !== current) {
+      editor.commands.setContent(incoming.replace(/\n/g, "<br>"));
     }
   }, [value, editor]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
 
   if (!editor) return null;
   

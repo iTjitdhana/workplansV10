@@ -16,31 +16,67 @@ router.get('/search', async (req, res) => {
       });
     }
 
-    const searchTerm = `%${query}%`;
+    const normalizedQuery = String(query).trim();
+    if (normalizedQuery.length === 0) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+    const searchTerm = `%${normalizedQuery}%`;
+    const prefixTerm = `${normalizedQuery}%`;
     const results = [];
 
     // 1. ค้นหาจาก process_steps (มีสูตร)
     const processStepsSql = `
-      SELECT DISTINCT job_code, job_name
+      SELECT DISTINCT
+        job_code,
+        job_name,
+        CASE
+          WHEN job_code = ? OR job_name = ? THEN 1
+          WHEN job_code LIKE ? OR job_name LIKE ? THEN 2
+          ELSE 3
+        END AS relevance_score
       FROM process_steps
       WHERE job_code LIKE ? OR job_name LIKE ?
-      ORDER BY job_code
-      LIMIT 10
+      ORDER BY relevance_score ASC, CHAR_LENGTH(job_name) ASC, job_code ASC
+      LIMIT 30
     `;
-    const [processStepsRows] = await pool.execute(processStepsSql, [searchTerm, searchTerm]);
+    const [processStepsRows] = await pool.execute(processStepsSql, [
+      normalizedQuery,
+      normalizedQuery,
+      prefixTerm,
+      prefixTerm,
+      searchTerm,
+      searchTerm
+    ]);
     if (processStepsRows && processStepsRows.length > 0) {
       results.push(...processStepsRows);
     }
 
     // 2. ค้นหาจาก fg table (ตารางสินค้าสำเร็จรูป - มีสูตรใน fg_bom)
     const fgSql = `
-      SELECT DISTINCT FG_Code AS job_code, FG_Name AS job_name
+      SELECT DISTINCT
+        FG_Code AS job_code,
+        FG_Name AS job_name,
+        CASE
+          WHEN FG_Code = ? OR FG_Name = ? THEN 1
+          WHEN FG_Code LIKE ? OR FG_Name LIKE ? THEN 2
+          ELSE 3
+        END AS relevance_score
       FROM fg
       WHERE FG_Code LIKE ? OR FG_Name LIKE ?
-      ORDER BY FG_Code
-      LIMIT 10
+      ORDER BY relevance_score ASC, CHAR_LENGTH(FG_Name) ASC, FG_Code ASC
+      LIMIT 30
     `;
-    const [fgRows] = await pool.execute(fgSql, [searchTerm, searchTerm]);
+    const [fgRows] = await pool.execute(fgSql, [
+      normalizedQuery,
+      normalizedQuery,
+      prefixTerm,
+      prefixTerm,
+      searchTerm,
+      searchTerm
+    ]);
     if (fgRows && fgRows.length > 0) {
       // กรองข้อมูลที่ซ้ำกับ process_steps แล้ว
       const existingCodes = new Set(results.map(r => r.job_code));
@@ -48,8 +84,10 @@ router.get('/search', async (req, res) => {
       results.push(...newFgRows);
     }
 
-    // จำกัดผลลัพธ์ทั้งหมดไม่เกิน 10 รายการ
-    const finalResults = results.slice(0, 10);
+    // ลบฟิลด์คะแนนก่อนส่งกลับ และจำกัดผลลัพธ์หน้าแรกให้พอใช้งาน
+    const finalResults = results
+      .slice(0, 20)
+      .map(({ relevance_score, ...row }) => row);
     
     res.json({
       success: true,

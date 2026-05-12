@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import Select, { SingleValue, ActionMeta } from 'react-select';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
 import { debugLog, debugError, getApiUrl } from '@/lib/config';
 
 export interface JobOption {
@@ -15,6 +15,7 @@ interface JobSearchSelectProps {
   onAddNew?: (jobName: string) => void;
   placeholder?: string;
   isDisabled?: boolean;
+  isInvalid?: boolean;
   className?: string;
   allowAddNew?: boolean;
 }
@@ -25,35 +26,34 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
   onAddNew,
   placeholder = "ค้นหางาน...",
   isDisabled = false,
+  isInvalid = false,
   className = "",
   allowAddNew = true
 }) => {
   const [options, setOptions] = useState<JobOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [inputValue, setInputValue] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const shouldClearOnBlurRef = useRef(false);
   
   // แก้ไข hydration error
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Sync inputValue กับ value เมื่อมีการเลือกค่าแล้ว
-  useEffect(() => {
-    // ถ้ามี value แต่ไม่มี inputValue (ยังไม่ได้พิมพ์) ให้ตั้ง inputValue เป็น value
-    // แต่ไม่ต้องทำถ้า inputValue มีค่าอยู่แล้ว (กำลังพิมพ์อยู่)
-    if (value && !inputValue) {
-      // ใช้ setTimeout เพื่อให้ cursor อยู่ท้ายคำ
-      setTimeout(() => {
-        setInputValue(value);
-      }, 0);
-    }
-  }, [value]);
-
   // สร้าง selected value
   const selectedValue = useMemo(() => {
     if (!value) return null;
-    return options.find(opt => opt.job_name === value) || {
+    const matchedOption = options.find(opt => opt.job_name === value);
+
+    // ไม่ใช้ temporary "add-new-*" label เป็น selected value
+    // เพื่อให้การแสดงผลคงที่หลังผู้ใช้เลือกเพิ่มงานใหม่
+    if (matchedOption && !(matchedOption.job_code === 'NEW' && matchedOption.value.startsWith('add-new-'))) {
+      return matchedOption;
+    }
+
+    return {
       value: value,
       label: value,
       job_code: '',
@@ -117,7 +117,7 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [allowAddNew]);
 
   // จัดการการเลือก
   const handleChange = useCallback((
@@ -128,6 +128,11 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
     debugLog('🎯 Action:', actionMeta.action);
     
     if (newValue) {
+      // หลังเลือก option ให้กลับไปโหมดแสดงค่า selected ทันที
+      setIsEditing(false);
+      setSearchInput('');
+      shouldClearOnBlurRef.current = false;
+
       // ตรวจสอบว่าเป็นการเพิ่มงานใหม่หรือไม่
       if (newValue.job_code === 'NEW' && newValue.value.startsWith('add-new-')) {
         debugLog('➕ Adding new job:', newValue.job_name);
@@ -141,34 +146,49 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
         // งานที่มีอยู่แล้วในระบบ
         onChange(newValue.job_code, newValue.job_name);
       }
-      // Clear inputValue เมื่อเลือกค่าแล้ว เพื่อให้เมื่อคลิกแก้ไข cursor อยู่ท้ายคำ
-      setInputValue('');
     } else {
+      setIsEditing(false);
+      setSearchInput('');
+      shouldClearOnBlurRef.current = false;
       onChange('', '');
-      setInputValue('');
     }
   }, [onChange, onAddNew]);
 
   // จัดการการพิมพ์
-  const handleInputChange = useCallback((newValue: string, actionMeta: any) => {
+  const handleInputChange = useCallback((newValue: string, actionMeta: InputActionMeta) => {
     debugLog('📝 Input change:', newValue, actionMeta.action);
-    setInputValue(newValue);
-    
-    // ค้นหาเมื่อพิมพ์
+
+    // ค้นหาเฉพาะตอนผู้ใช้พิมพ์จริงเท่านั้น
     if (actionMeta.action === 'input-change') {
+      setSearchInput(newValue);
+      shouldClearOnBlurRef.current = newValue.trim().length === 0;
       loadOptions(newValue);
     }
   }, [loadOptions]);
 
-  // จัดการเมื่อ focus ที่ input เพื่อให้ cursor อยู่ท้ายคำ
+  // เมื่อโฟกัส ให้เอาค่าเดิมมาให้แก้ไขต่อได้ทันที
   const handleFocus = useCallback(() => {
-    // ถ้ามี value ที่เลือกอยู่แล้ว ให้ตั้ง inputValue เป็น value นั้นเพื่อให้ cursor อยู่ท้าย
-    if (value) {
-      // ใช้ setTimeout เพื่อให้ cursor อยู่ท้ายคำ
-      setTimeout(() => {
-        setInputValue(value);
-      }, 0);
+    setIsEditing(true);
+    setSearchInput(value || '');
+    shouldClearOnBlurRef.current = false;
+  }, [value]);
+
+  // เมื่อ blur ให้กลับไปโหมดแสดง selected value
+  const handleBlur = useCallback(() => {
+    if (shouldClearOnBlurRef.current && value) {
+      onChange('', '');
     }
+    shouldClearOnBlurRef.current = false;
+    setIsEditing(false);
+    setSearchInput('');
+  }, [onChange, value]);
+
+  // บางกรณี react-select โฟกัสค้าง ทำให้ onFocus ไม่ยิงซ้ำ
+  // ใช้ onMenuOpen บังคับเข้าโหมดแก้ไขเมื่อผู้ใช้คลิกช่องอีกครั้ง
+  const handleMenuOpen = useCallback(() => {
+    setIsEditing(true);
+    setSearchInput(value || '');
+    shouldClearOnBlurRef.current = false;
   }, [value]);
 
   // Custom styles
@@ -176,12 +196,14 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
     control: (provided: any, state: any) => ({
       ...provided,
       minHeight: '38px',
-      border: '1px solid #d1d5db',
+      border: `1px solid ${isInvalid ? '#ef4444' : '#d1d5db'}`,
       borderRadius: '6px',
       '&:hover': {
-        border: '1px solid #10b981'
+        border: `1px solid ${isInvalid ? '#dc2626' : '#10b981'}`
       },
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(16, 185, 129, 0.1)' : 'none'
+      boxShadow: state.isFocused
+        ? (isInvalid ? '0 0 0 2px rgba(239, 68, 68, 0.15)' : '0 0 0 2px rgba(16, 185, 129, 0.1)')
+        : 'none'
     }),
     option: (provided: any, state: any) => {
       const isAddNew = state.data?.job_code === 'NEW';
@@ -226,6 +248,7 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
         onChange={handleChange}
         onInputChange={handleInputChange}
         onFocus={handleFocus}
+        onBlur={handleBlur}
         options={options}
         isLoading={isLoading}
         isDisabled={isDisabled}
@@ -244,16 +267,10 @@ export const JobSearchSelect: React.FC<JobSearchSelectProps> = ({
         styles={customStyles}
         menuPosition="fixed"
         menuPlacement="auto"
+        controlShouldRenderValue={!isEditing}
+        onMenuOpen={handleMenuOpen}
         filterOption={() => true} // ปิด client-side filter
-        inputValue={inputValue}
-        onMenuOpen={() => {
-          // เมื่อเปิด menu ให้ตั้ง inputValue เป็น value ที่เลือกเพื่อให้ cursor อยู่ท้าย
-          if (value) {
-            setTimeout(() => {
-              setInputValue(value);
-            }, 0);
-          }
-        }}
+        inputValue={isEditing ? searchInput : undefined}
       />
     </div>
   );

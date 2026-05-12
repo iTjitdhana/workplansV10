@@ -261,6 +261,8 @@ class WorkPlan {
           wp.job_name,
           wp.job_type,
           wp.workflow_status,
+          wp.status_id,
+          wp.is_printed,
           wp.start_time,
           wp.end_time,
           wp.notes,
@@ -362,12 +364,11 @@ class WorkPlan {
         LEFT JOIN users u ON wpo.user_id = u.id OR wpo.id_code = u.id_code
         WHERE wpo.work_plan_id = ?
         ORDER BY wpo.id ASC
-        LIMIT 4
       `;
       
       const [operators] = await pool.execute(operatorQuery, [workPlan.id]);
       
-      // แปลง operators เป็น array ของชื่อ (สูงสุด 4 คน)
+      // แปลง operators เป็น array ของชื่อทั้งหมด
       workPlan.operators = operators.map(op => op.name || op.id_code).filter(Boolean);
       
       // ถ้าแผนล่าสุดไม่มีข้อมูลห้องผลิต ให้ดึงจากแผนที่มีข้อมูลห้องผลิตล่าสุด
@@ -438,25 +439,43 @@ class WorkPlan {
   // ✅ ปรับปรุง: เช็คทีละ job_code แทนการเช็ครวม (ละเอียดและแม่นยำกว่า)
   static async createDefaultTasks(production_date) {
     const connection = await pool.getConnection();
+    let lockName = '';
+    let hasNamedLock = false;
+    let transactionStarted = false;
     try {
-      await connection.beginTransaction();
-      
       const formattedDate = formatDateForDatabase(production_date);
+      if (!formattedDate) {
+        throw new Error('Invalid production_date format');
+      }
+
+      // Lock per-day creation to prevent duplicate inserts from concurrent requests.
+      lockName = `work_plans_default_${formattedDate}`;
+      const [lockRows] = await connection.execute(
+        'SELECT GET_LOCK(?, 10) AS acquired',
+        [lockName]
+      );
+      hasNamedLock = Number(lockRows?.[0]?.acquired) === 1;
+      if (!hasNamedLock) {
+        throw new Error(`Could not acquire default-task lock for ${formattedDate}`);
+      }
+
+      await connection.beginTransaction();
+      transactionStarted = true;
       
       console.log('🔍 Checking existing default tasks for:', formattedDate);
       
-      // ✅ ปรับปรุง: เช็คทีละ job_code (ละเอียดกว่าเดิม)
-      // เช็คว่ามีงาน A, B, C, D ใดบ้างที่ยังไม่มีในวันนั้น
+      // เช็คจาก job_code โดยตรง (ไม่จำกัด job_type) เพื่อกันงานซ้ำจากข้อมูลเก่า/ข้อมูลผิดรูป
       const [existing] = await connection.execute(`
         SELECT job_code
         FROM work_plans 
         WHERE DATE(production_date) = ? 
           AND job_code IN ('A', 'B', 'C', 'D')
-          AND job_type = 'default'
       `, [formattedDate]);
       
-      const existingCodes = existing.map(row => row.job_code);
-      console.log('📋 Existing default tasks:', existingCodes);
+      const existingCodes = new Set(
+        existing.map(row => String(row.job_code || '').toUpperCase())
+      );
+      console.log('📋 Existing default tasks:', Array.from(existingCodes));
       
       // สร้างงาน ABCD
       const defaultTasks = [
@@ -471,7 +490,7 @@ class WorkPlan {
       
       // ✅ สร้างเฉพาะงานที่ยังไม่มี
       for (const task of defaultTasks) {
-        if (existingCodes.includes(task.code)) {
+        if (existingCodes.has(task.code)) {
           console.log(`⏭️  Skipping ${task.code} - ${task.name} (already exists)`);
           skippedCodes.push(task.code);
           continue;
@@ -519,10 +538,19 @@ class WorkPlan {
       };
       
     } catch (error) {
-      await connection.rollback();
+      if (transactionStarted) {
+        await connection.rollback();
+      }
       console.error('❌ Error creating default tasks:', error);
       throw new Error(`Error creating default tasks: ${error.message}`);
     } finally {
+      if (hasNamedLock && lockName) {
+        try {
+          await connection.execute('SELECT RELEASE_LOCK(?)', [lockName]);
+        } catch (releaseError) {
+          console.error('⚠️ Failed to release lock:', releaseError);
+        }
+      }
       connection.release();
     }
   }
