@@ -12,7 +12,7 @@
 2. กรอกข้อมูลในแถบด้านบน:
    - **Host**: sftp://192.168.0.96
    - **Username**: user
-   - **Password**: iT12345$
+   - **Password**: <REDACTED_PASSWORD>
    - **Port**: 22
 3. คลิก **Quickconnect**
 

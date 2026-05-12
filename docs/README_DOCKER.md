@@ -5,7 +5,7 @@
 - MySQL Database ทำงานที่ `192.168.0.94:3306`
 - Database: `esp_tracker`
 - User: `jitdhana`
-- Password: `iT12345$`
+- Password: `<REDACTED_PASSWORD>`
 
 ## การใช้งาน
 

@@ -1,54 +1,24 @@
-# 🚀 Deployment Directory
+# Deployment Directory
 
-โฟลเดอร์นี้จัดเก็บไฟล์และสคริปต์ที่เกี่ยวข้องกับการ Deploy ระบบ WorkplanV6
+โฟลเดอร์รวมไฟล์ deploy/runtime tooling ของโปรเจกต์
 
-## 📁 โครงสร้างโฟลเดอร์
+## Production Baseline (Linux)
 
-### 📂 `linux/`
-ไฟล์และสคริปต์สำหรับการ Deploy บน Linux Server
-- `docker-compose.linux.yml` - Docker Compose configuration สำหรับ Linux
-- `deploy-from-github.sh` - Script deploy จาก GitHub
-- `install-docker.sh` - Script ติดตั้ง Docker
-- `deploy-linux.sh` - Script deploy แบบเดิม
-- `start-production.sh` - Script เริ่มระบบ production
+ใช้เฉพาะไฟล์ใน `deployment/linux` เป็น source of truth:
 
-### 📂 `windows/`
-ไฟล์และสคริปต์สำหรับการ Deploy บน Windows
-- `*.bat` - Batch files สำหรับ Windows
-- `*.ps1` - PowerShell scripts
+- `deployment/linux/docker-compose.prod.yml`
+- `deployment/linux/nginx.prod.conf`
+- `deployment/linux/.env.prod.example`
+- `deployment/linux/deploy-from-github.sh`
+- `deployment/linux/start-production.sh`
 
-### 📂 `guides/`
-คู่มือและเอกสารการ Deploy
-- `LINUX_BUILD_GUIDE.md` - คู่มือการ Build บน Linux
-- `DEPLOYMENT_SUMMARY.md` - สรุปการ Deploy และปัญหา
-- `GitHub-Deployment-Guide.md` - คู่มือ Deploy ผ่าน GitHub
-- `README-Linux-Deploy.md` - คู่มือ Linux Deploy แบบเดิม
-- `upload-guide-*.md` - คู่มือการอัพโหลดไฟล์
+ไฟล์เก่าตาม `infra/` และ compose อื่นๆ ยังเก็บไว้เพื่ออ้างอิงย้อนหลัง แต่ไม่ใช่ production baseline ใหม่
 
-### 📂 `scripts/`
-สคริปต์เพิ่มเติมสำหรับการ Deploy
+## Quick Start
 
-## 🎯 การใช้งาน
-
-### สำหรับ Linux Server
 ```bash
 cd deployment/linux
-chmod +x *.sh
-./deploy-from-github.sh
+cp .env.prod.example .env
+# แก้ .env ให้เป็นค่าจริง
+docker compose --env-file .env -f docker-compose.prod.yml up -d --build
 ```
-
-### สำหรับ Windows
-```bash
-cd deployment/windows
-# ดับเบิลคลิกไฟล์ .bat ที่ต้องการ
-```
-
-### ดูคู่มือ
-```bash
-cd deployment/guides
-# เปิดไฟล์ .md ที่ต้องการ
-```
-
----
-
-**อัปเดทล่าสุด:** 23 กันยายน 2567

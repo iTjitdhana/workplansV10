@@ -6,7 +6,7 @@ async function checkManufacturingSystem() {
     connection = await mysql.createConnection({
       host: process.env.DB_HOST || '192.168.0.96',
       user: process.env.DB_USER || 'jitdhana',
-      password: process.env.DB_PASSWORD || 'iT12345$$',
+      password: process.env.DB_PASSWORD || '<REDACTED_PASSWORD>$',
       database: 'manufacturing_system'  // ใช้ manufacturing_system แทน manufacturing_system_dev
     });
 

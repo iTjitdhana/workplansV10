@@ -58,7 +58,7 @@ git push -u origin main
 
 ```bash
 ssh itjitdhana@192.168.0.96
-# password: iT12345$
+# password: <REDACTED_PASSWORD>
 ```
 
 #### รัน Deployment Script

@@ -69,7 +69,7 @@ docker run -d \
   -e NODE_ENV=production \
   -e DB_HOST=192.168.0.94 \
   -e DB_USER=jitdhana \
-  -e DB_PASSWORD=iT12345$ \
+  -e DB_PASSWORD=<REDACTED_PASSWORD> \
   -e DB_NAME=esp_tracker \
   -e DB_PORT=3306 \
   --restart unless-stopped \
@@ -149,7 +149,7 @@ docker restart workplanv6-frontend workplanv6-backend
 - `NODE_ENV`: production
 - `DB_HOST`: Database host (192.168.0.94)
 - `DB_USER`: Database username (jitdhana)
-- `DB_PASSWORD`: Database password (iT12345$)
+- `DB_PASSWORD`: Database password (<REDACTED_PASSWORD>)
 - `DB_NAME`: Database name (esp_tracker)
 - `DB_PORT`: Database port (3306)
 

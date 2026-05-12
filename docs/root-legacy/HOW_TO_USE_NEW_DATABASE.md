@@ -20,14 +20,14 @@
 # Database ใหม่ (manufacturing_system)
 NEW_HOST=192.168.0.94
 NEW_USER=jitdhana  
-NEW_PASSWORD=iT12345$
+NEW_PASSWORD=<REDACTED_PASSWORD>
 NEW_NAME=manufacturing_system
 NEW_PORT=3306
 
 # Database เก่า (esp_tracker) - ยังใช้ได้
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 ```

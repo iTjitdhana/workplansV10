@@ -1,3 +1,5 @@
+# Deprecated for production baseline.
+# Use deployment/linux/docker-compose.prod.yml for Linux production.
 version: '3.8'
 
 services:

@@ -299,7 +299,7 @@ Cursor หรือ AI ที่ช่วยพัฒนาโค้ดในโ
 DB_HOST=192.168.0.96
 DB_PORT=3306
 DB_USER=jitdhana
-DB_PASS=iT12345$
+DB_PASS=<REDACTED_PASSWORD>
 DB_NAME=jdnsystem
 ```
 
@@ -324,7 +324,7 @@ const db = await mysql.createPool({
 const db = mysql.createConnection({
   host: '192.168.0.96',
   user: 'jitdhana',
-  password: 'iT12345$',
+  password: '<REDACTED_PASSWORD>',
   database: 'jdnsystem'
 });
 ```

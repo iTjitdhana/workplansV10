@@ -1,62 +1,38 @@
-# 🐧 Linux Deployment Files
+# Linux Deployment
 
-ไฟล์และสคริปต์สำหรับการ Deploy ระบบ WorkplanV6 บน Linux Server
+ไฟล์ในโฟลเดอร์นี้คือ production source of truth สำหรับ Linux server
 
-## 📁 ไฟล์ในโฟลเดอร์นี้
+## Source Of Truth
 
-### `docker-compose.linux.yml`
-Docker Compose configuration สำหรับ Linux Server
-- Frontend: port 3012
-- Backend: port 3102
-- Database: เชื่อมต่อ 192.168.0.94
+- `docker-compose.prod.yml`: compose หลักสำหรับ production
+- `nginx.prod.conf`: reverse proxy สำหรับ internal ingress
+- `.env.prod.example`: template ค่าที่ต้องกำหนดบน server
+- `deploy-from-github.sh`: script สำหรับ clone/update + start แบบปลอดภัย
+- `start-production.sh`: script สำหรับ start/restart/health check
 
-### `deploy-from-github.sh`
-Script หลักสำหรับ Deploy จาก GitHub
-- Clone repository
-- สร้าง environment files
-- Build และรัน Docker containers
+## First-Time Setup
 
-### `install-docker.sh`
-Script ติดตั้ง Docker และ Docker Compose
-- ติดตั้ง Docker CE
-- ติดตั้ง Docker Compose Plugin
-- ตั้งค่า permissions
-
-### `deploy-linux.sh`
-Script deploy แบบเดิม (legacy)
-- ใช้สำหรับการ deploy แบบเก่า
-
-### `start-production.sh`
-Script เริ่มระบบ production
-- เริ่ม Docker containers
-- ตรวจสอบสถานะ
-
-## 🚀 การใช้งาน
-
-### Deploy ครั้งแรก
 ```bash
-# ตั้งค่า permissions
-chmod +x *.sh
-
-# ติดตั้ง Docker (ถ้ายังไม่มี)
-./install-docker.sh
-
-# Deploy ระบบ
-./deploy-from-github.sh
+cd deployment/linux
+cp .env.prod.example .env
+# แก้ค่า .env ให้เป็นค่าจริงบน server
 ```
 
-### การใช้งาน Docker Compose
+## Start / Update
+
 ```bash
-# ขึ้นระบบ
-docker compose -f docker-compose.linux.yml up -d
+# start ครั้งแรกหรืออัปเดตหลัง pull
+docker compose --env-file .env -f docker-compose.prod.yml up -d --build
 
-# ดูสถานะ
-docker compose -f docker-compose.linux.yml ps
+# ตรวจสถานะ
+docker compose --env-file .env -f docker-compose.prod.yml ps
 
-# ดู logs
-docker compose -f docker-compose.linux.yml logs -f
+# logs
+docker compose --env-file .env -f docker-compose.prod.yml logs -f
 ```
 
----
+## Internal-Only Access (Required)
 
-**อัปเดทล่าสุด:** 23 กันยายน 2567
+- เปิดรับจากภายนอกเฉพาะ Nginx ingress (`80`) ตาม network policy
+- ไม่เปิด port ของ `frontend` และ `backend` ออกตรงๆ
+- จำกัดการเข้าถึงด้วย LAN/VPN/allowlist ตามนโยบายองค์กร

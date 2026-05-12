@@ -7,13 +7,13 @@ const path = require('path');
 
 // Load environment variables dynamically based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-require('dotenv').config({ path: `./${envFile}` });
+require('dotenv').config({ path: path.resolve(__dirname, envFile) });
 
 // Import middleware
 const responseMonitoring = require('./middleware/responseMonitoring');
 
 const app = express();
-const PORT = process.env.PORT || 3109;
+const PORT = process.env.PORT || 3101;
 
 // Debug logging
 console.log('🚀 Starting Backend Server...');
@@ -88,15 +88,17 @@ const configuredCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIG
   .map(s => s.trim())
   .filter(Boolean);
 
+const corsOriginPolicy = (() => {
+  if (process.env.NODE_ENV !== 'production') return true;
+  if (configuredCorsOrigins.length > 0) return configuredCorsOrigins;
+  const fallback = (process.env.FRONTEND_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (fallback.length > 0) return fallback;
+  console.warn('⚠️  No CORS origins configured in production. CORS is now deny-by-default.');
+  return false;
+})();
+
 app.use(cors({
-  origin: (() => {
-    if (process.env.NODE_ENV !== 'production') return true;
-    if (configuredCorsOrigins.length > 0) return configuredCorsOrigins;
-    const fallback = (process.env.FRONTEND_URL || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (fallback.length > 0) return fallback;
-    console.warn('⚠️  No CORS origins configured. Allowing all origins in production. Set CORS_ORIGINS or FRONTEND_URL.');
-    return true;
-  })(),
+  origin: corsOriginPolicy,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

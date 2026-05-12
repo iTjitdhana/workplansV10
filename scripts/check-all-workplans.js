@@ -6,7 +6,7 @@ async function checkAllWorkPlans() {
     connection = await mysql.createConnection({
       host: process.env.DB_HOST || '192.168.0.96',
       user: process.env.DB_USER || 'jitdhana',
-      password: process.env.DB_PASSWORD || 'iT12345$$',
+      password: process.env.DB_PASSWORD || '<REDACTED_PASSWORD>$',
       database: process.env.DB_NAME || 'manufacturing_system_dev'
     });
 

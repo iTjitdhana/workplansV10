@@ -6,7 +6,7 @@ async function checkWorkPlans() {
     connection = await mysql.createConnection({
       host: '192.168.0.96',
       user: 'jitdhana',
-      password: 'iT12345$$',
+      password: '<REDACTED_PASSWORD>$',
       database: 'manufacturing_system_dev'
     });
 

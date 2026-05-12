@@ -12,7 +12,7 @@
 ### 1. **ปัญหา Docker Compose Environment Variables**
 **ปัญหา:** เครื่องหมาย `$` ในรหัสผ่านทำให้ Docker Compose error
 ```
-ERROR: Invalid interpolation format for "environment" option in service "backend": "DB_PASSWORD=iT12345$"
+ERROR: Invalid interpolation format for "environment" option in service "backend": "DB_PASSWORD=<REDACTED_PASSWORD>"
 ```
 **วิธีแก้:** 
 - ใช้ไฟล์ `.env` แทนการใส่ใน `docker-compose.yml`

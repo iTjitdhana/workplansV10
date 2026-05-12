@@ -7,7 +7,7 @@ async function testDatabaseConnection() {
     const connection = await mysql.createConnection({
       host: '192.168.0.93',
       user: 'it.jitdhana',
-      password: 'iT12345$',
+      password: '<REDACTED_PASSWORD>',
       database: 'esp_tracker',
     });
 

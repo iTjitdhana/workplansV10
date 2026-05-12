@@ -7,11 +7,16 @@ export const config = {
     // Otherwise use the configured URL
     baseUrl: (() => {
       const envUrl = process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL ?? '';
-      // If empty or browser environment, use relative path (works with Nginx proxy)
-      if (!envUrl || (typeof window !== 'undefined' && window.location)) {
-        return '';
+      // Browser: relative path works (same-origin or Nginx proxy)
+      if (typeof window !== 'undefined' && window.location) {
+        return envUrl || '';
       }
-      return envUrl;
+      // Server (API routes): fetch() requires absolute URL - use environment-specific defaults
+      const defaultBackend =
+        process.env.NODE_ENV === 'production'
+          ? 'http://backend:3101'
+          : 'http://localhost:3102';
+      return envUrl || defaultBackend;
     })(),
     timeout: 30000, // 30 seconds
     retryAttempts: 3,
