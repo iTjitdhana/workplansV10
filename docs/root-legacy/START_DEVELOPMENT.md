@@ -36,7 +36,7 @@ copy .env.example .env.development
 # backend/.env.development
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 
 # frontend/.env.development
@@ -194,7 +194,7 @@ NODE_ENV=development
 PORT=3101
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 JWT_SECRET=workplan_jwt_secret_dev_2024_key_v6_do_not_use_in_production

@@ -13,7 +13,7 @@
    - **File protocol**: SFTP
    - **Host name**: 192.168.0.96
    - **User name**: user (หรือ username ที่ใช้)
-   - **Password**: iT12345$
+   - **Password**: <REDACTED_PASSWORD>
 3. คลิก **Login**
 
 ## 3. อัพโหลดไฟล์

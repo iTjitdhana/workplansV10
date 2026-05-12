@@ -19,6 +19,7 @@ backend/production.env
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
+!deployment/linux/.env.prod.example
 
 # Logs
 logs/

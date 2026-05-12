@@ -56,7 +56,7 @@ docker run -d ^
   -e NODE_ENV=production ^
   -e DB_HOST=192.168.0.94 ^
   -e DB_USER=jitdhana ^
-  -e DB_PASSWORD=iT12345$ ^
+  -e DB_PASSWORD=<REDACTED_PASSWORD> ^
   -e DB_NAME=esp_tracker ^
   -e DB_PORT=3306 ^
   --restart unless-stopped ^

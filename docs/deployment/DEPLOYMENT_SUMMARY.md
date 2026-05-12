@@ -98,7 +98,7 @@ git push origin main
 # backend/.env
 DB_HOST=localhost
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 PORT=3101
@@ -198,7 +198,7 @@ optimize-performance.bat        # Optimize performance
 # Database
 DB_HOST=localhost
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 
@@ -278,7 +278,7 @@ netstat -an | findstr ":3011"
 netstat -an | findstr ":3101"
 
 # Check Database Connection
-mysql -u jitdhana -piT12345$ -e "SELECT 1;"
+mysql -u jitdhana -p<REDACTED_PASSWORD> -e "SELECT 1;"
 ```
 
 ### 📈 Performance Monitoring
@@ -353,7 +353,7 @@ git push origin main
 
 ### 📝 Notes
 - Database: esp_tracker (existing)
-- User: jitdhana / iT12345$
+- User: jitdhana / <REDACTED_PASSWORD>
 - Backend Port: 3101
 - Frontend Port: 3011
 - Environment: Development

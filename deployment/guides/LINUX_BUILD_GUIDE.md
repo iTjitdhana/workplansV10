@@ -20,7 +20,7 @@
 ### 1. **SSH เข้า Linux Server**
 ```bash
 ssh itjitdhana@192.168.0.96
-# password: iT12345$
+# password: <REDACTED_PASSWORD>
 ```
 
 ### 2. **สร้างโฟลเดอร์โปรเจค**
@@ -85,16 +85,16 @@ NODE_ENV=production
 PORT=3101
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 LOGS_DB_HOST=192.168.0.93
 LOGS_DB_USER=it.jitdhana
-LOGS_DB_PASSWORD=iT12345$
+LOGS_DB_PASSWORD=<REDACTED_PASSWORD>
 LOGS_DB_NAME=esp_tracker
 LOGS_DB_PORT=3306
-JWT_SECRET=workplan_jwt_secret_2024_production_key_v6
-SESSION_SECRET=workplan_session_secret_2024_production_key_v6
+JWT_SECRET=<REDACTED_JWT_SECRET>
+SESSION_SECRET=<REDACTED_SESSION_SECRET>
 CORS_ORIGIN=http://192.168.0.96:3012
 EOF
 ```

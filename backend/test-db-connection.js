@@ -6,7 +6,7 @@ require('dotenv').config({ path: './production.env' });
 const config = {
   host: process.env.DB_HOST || '192.168.0.94',
   user: process.env.DB_USER || 'jitdhana',
-  password: process.env.DB_PASSWORD || 'iT12345$',
+  password: process.env.DB_PASSWORD || '<REDACTED_PASSWORD>',
   database: process.env.DB_NAME || 'esp_tracker',
   port: process.env.DB_PORT || 3306,
   connectTimeout: 10000,
@@ -57,7 +57,7 @@ async function testConnection() {
     console.log('2. Verify user jitdhana has permission to connect from this IP');
     console.log('3. Check firewall settings on 192.168.0.94');
     console.log('4. Run this MySQL command on 192.168.0.94:');
-    console.log('   GRANT ALL PRIVILEGES ON esp_tracker.* TO "jitdhana"@"%" IDENTIFIED BY "iT12345$";');
+    console.log('   GRANT ALL PRIVILEGES ON esp_tracker.* TO "jitdhana"@"%" IDENTIFIED BY "<REDACTED_PASSWORD>";');
     console.log('   FLUSH PRIVILEGES;');
     console.log('5. Check MySQL bind-address in /etc/mysql/mysql.conf.d/mysqld.cnf');
     console.log('   Should be: bind-address = 0.0.0.0');

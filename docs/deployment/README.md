@@ -6,6 +6,7 @@
 - [Production Deployment](./PRODUCTION_DEPLOYMENT.md) - คู่มือการ deploy ระบบสู่ production
 - [Production Deployment Guide](./PRODUCTION_DEPLOYMENT_GUIDE.md) - คู่มือการ deploy แบบละเอียด
 - [Production Remote DB Setup](./PRODUCTION_REMOTE_DB_SETUP.md) - การตั้งค่า database สำหรับ production
+- [Linux Production Runbook](./LINUX_PRODUCTION_RUNBOOK.md) - runbook มาตรฐานสำหรับ Linux internal production
 
 ## 🐳 Docker & Containerization
 - [Docker Registry Guide](./DOCKER_REGISTRY_GUIDE.md) - คู่มือการใช้ Docker Registry

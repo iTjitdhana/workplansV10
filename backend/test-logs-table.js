@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 const config = {
   host: '192.168.0.94',
   user: 'jitdhana',
-  password: 'iT12345$',
+  password: '<REDACTED_PASSWORD>',
   database: 'esp_tracker',
   port: 3306,
   connectTimeout: 10000,

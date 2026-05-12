@@ -52,7 +52,7 @@ cat > backend/.env << EOF
 NODE_ENV=production
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 PORT=3101

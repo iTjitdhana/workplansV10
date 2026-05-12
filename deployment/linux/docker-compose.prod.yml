@@ -1,11 +1,9 @@
-# Deprecated:
-# Use deployment/linux/docker-compose.prod.yml instead.
-# This file is kept only for backward compatibility.
 services:
   frontend:
     build:
       context: ../../frontend
       dockerfile: Dockerfile
+    container_name: workplan-frontend
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
@@ -13,9 +11,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    restart: unless-stopped
     networks:
       - workplan-network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3011', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
@@ -27,6 +25,7 @@ services:
     build:
       context: ../../backend
       dockerfile: Dockerfile
+    container_name: workplan-backend
     environment:
       - NODE_ENV=production
       - PORT=3101
@@ -36,9 +35,10 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT:-3306}
       - CORS_ORIGINS=${CORS_ORIGINS}
-    restart: unless-stopped
+      - PUBLIC_HOST=${PUBLIC_HOST:-localhost}
     networks:
       - workplan-network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3101/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
@@ -48,6 +48,7 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
+    container_name: workplan-nginx
     ports:
       - "${NGINX_HTTP_PORT:-80}:80"
     volumes:
@@ -57,9 +58,15 @@ services:
         condition: service_healthy
       backend:
         condition: service_healthy
-    restart: unless-stopped
     networks:
       - workplan-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   workplan-network:

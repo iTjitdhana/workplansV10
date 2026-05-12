@@ -9,7 +9,7 @@ async function testDatabaseConnection() {
       name: '192.168.0.94 (Production)',
       host: '192.168.0.94',
       user: 'jitdhana',
-      password: 'iT12345$',
+      password: '<REDACTED_PASSWORD>',
       database: 'esp_tracker',
       port: 3306
     },
@@ -17,7 +17,7 @@ async function testDatabaseConnection() {
       name: 'localhost (Local)',
       host: 'localhost',
       user: 'jitdhana',
-      password: 'iT12345$',
+      password: '<REDACTED_PASSWORD>',
       database: 'esp_tracker',
       port: 3306
     },
@@ -25,7 +25,7 @@ async function testDatabaseConnection() {
       name: 'host.docker.internal (Docker)',
       host: 'host.docker.internal',
       user: 'jitdhana',
-      password: 'iT12345$',
+      password: '<REDACTED_PASSWORD>',
       database: 'esp_tracker',
       port: 3306
     }

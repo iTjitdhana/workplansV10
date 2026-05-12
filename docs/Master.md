@@ -225,7 +225,7 @@ Path prefix: `/app/api/*` → `export async function GET/POST/PUT/DELETE`
 
 4) Database Config Logs มีข้อมูลอ่อนไหว + ค่า default ชัดเจน
 - พิมพ์ user/database/คำสั่ง GRANT ที่เห็นพาส (แม้จะซ่อนในบางจุด)
-- มี default password ในซอร์ส (`iT12345$`)
+- มี default password ในซอร์ส (`<REDACTED_PASSWORD>`)
 - แนะนำ: ใช้ env จริง, ลด/ปิด log sensitive, ห้ามใส่ค่า default อ่อนไหวในโค้ด
 
 5) CORS Production Origins จำกัดเฉพาะ 2 โฮสต์

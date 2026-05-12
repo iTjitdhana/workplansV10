@@ -14,7 +14,7 @@ const config = {
   db: {
     host: '192.168.0.94',
     user: 'jitdhana',
-    password: 'iT12345$',
+    password: '<REDACTED_PASSWORD>',
     database: 'esp_tracker',
     port: 3306
   },

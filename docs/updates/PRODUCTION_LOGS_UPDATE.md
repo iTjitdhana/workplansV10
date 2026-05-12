@@ -210,10 +210,10 @@ INSERT INTO production_logs (
 ### 1. ตารางไม่ถูกสร้าง
 ```bash
 # ตรวจสอบการเชื่อมต่อ
-mysql -h 192.168.0.94 -u jitdhana -p'iT12345$' -e "USE esp_tracker;"
+mysql -h 192.168.0.94 -u jitdhana -p'<REDACTED_PASSWORD>' -e "USE esp_tracker;"
 
 # รัน SQL ใหม่
-mysql -h 192.168.0.94 -u jitdhana -p'iT12345$' esp_tracker < create-production-logs-table.sql
+mysql -h 192.168.0.94 -u jitdhana -p'<REDACTED_PASSWORD>' esp_tracker < create-production-logs-table.sql
 ```
 
 ### 2. Trigger ไม่ทำงาน

@@ -25,8 +25,8 @@ setup-mysql-remote-access.bat
 
 2. **ให้สิทธิ์ user jitdhana**:
    ```sql
-   GRANT ALL PRIVILEGES ON esp_tracker.* TO 'jitdhana'@'%' IDENTIFIED BY 'iT12345$';
-   GRANT ALL PRIVILEGES ON esp_tracker.* TO 'jitdhana'@'192.168.0.161' IDENTIFIED BY 'iT12345$';
+   GRANT ALL PRIVILEGES ON esp_tracker.* TO 'jitdhana'@'%' IDENTIFIED BY '<REDACTED_PASSWORD>';
+   GRANT ALL PRIVILEGES ON esp_tracker.* TO 'jitdhana'@'192.168.0.161' IDENTIFIED BY '<REDACTED_PASSWORD>';
    FLUSH PRIVILEGES;
    ```
 
@@ -79,7 +79,7 @@ start-frontend-production.bat
 NODE_ENV=production
 DB_HOST=192.168.0.94
 DB_USER=jitdhana
-DB_PASSWORD=iT12345$
+DB_PASSWORD=<REDACTED_PASSWORD>
 DB_NAME=esp_tracker
 DB_PORT=3306
 PRODUCTION_HOST=192.168.0.161
@@ -119,7 +119,7 @@ PORT=3011
 
 ### 1. ตรวจสอบ Database Connection:
 ```bash
-mysql -h 192.168.0.94 -u jitdhana -piT12345$ esp_tracker -e "SELECT 1 as test;"
+mysql -h 192.168.0.94 -u jitdhana -p<REDACTED_PASSWORD> esp_tracker -e "SELECT 1 as test;"
 ```
 
 ### 2. ตรวจสอบ Backend API:
@@ -149,12 +149,12 @@ sc query mysql80
 
 ### Backup Database:
 ```bash
-mysqldump -h 192.168.0.94 -u jitdhana -piT12345$ esp_tracker > backup.sql
+mysqldump -h 192.168.0.94 -u jitdhana -p<REDACTED_PASSWORD> esp_tracker > backup.sql
 ```
 
 ### Restore Database:
 ```bash
-mysql -h 192.168.0.94 -u jitdhana -piT12345$ esp_tracker < backup.sql
+mysql -h 192.168.0.94 -u jitdhana -p<REDACTED_PASSWORD> esp_tracker < backup.sql
 ```
 
 ## การ Update ระบบ
