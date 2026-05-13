@@ -30,11 +30,11 @@ if [[ ! -f "${CANONICAL_COMPOSE_PATH}" ]]; then
   exit 1
 fi
 
-echo "[1/6] Pre-check docker stack metadata"
+echo "[1/7] Pre-check docker stack metadata"
 docker inspect workplan-backend --format 'project={{ index .Config.Labels "com.docker.compose.project" }} service={{ index .Config.Labels "com.docker.compose.service" }} file={{ index .Config.Labels "com.docker.compose.project.config_files" }}' || true
 echo
 
-echo "[2/6] Verify canonical compose contains PRODUCTS_DB_NAME"
+echo "[2/7] Verify canonical compose contains PRODUCTS_DB_NAME"
 if ! grep -q "PRODUCTS_DB_NAME" "${CANONICAL_COMPOSE_PATH}"; then
   echo "ERROR: canonical compose does not contain PRODUCTS_DB_NAME"
   exit 1
@@ -42,7 +42,26 @@ fi
 echo "OK: PRODUCTS_DB_NAME found in canonical compose"
 echo
 
-echo "[3/6] Backup current legacy compose (if regular file)"
+echo "[3/7] Validate canonical compose runtime readiness"
+CONFIG_TMP="$(mktemp)"
+docker compose -p "${PROJECT_NAME}" -f "${CANONICAL_COMPOSE_PATH}" config > "${CONFIG_TMP}"
+if grep -q "yourusername/workplanv6-backend" "${CONFIG_TMP}"; then
+  echo "ERROR: canonical compose still references placeholder backend image"
+  echo "Please switch backend service to build mode or a real registry image before cutover."
+  rm -f "${CONFIG_TMP}"
+  exit 1
+fi
+if ! grep -q "image: linux-backend" "${CONFIG_TMP}"; then
+  echo "ERROR: canonical compose resolved backend image is not linux-backend"
+  echo "Please verify backend build/image settings in ${CANONICAL_COMPOSE_PATH}"
+  rm -f "${CONFIG_TMP}"
+  exit 1
+fi
+rm -f "${CONFIG_TMP}"
+echo "OK: canonical compose runtime settings are valid"
+echo
+
+echo "[4/7] Backup current legacy compose (if regular file)"
 if [[ -L "${LEGACY_COMPOSE_PATH}" ]]; then
   CURRENT_TARGET="$(readlink "${LEGACY_COMPOSE_PATH}")"
   echo "Legacy compose is already a symlink -> ${CURRENT_TARGET}"
@@ -56,7 +75,7 @@ else
 fi
 echo
 
-echo "[4/6] Ensure products DB env exists in ${ENV_FILE}"
+echo "[5/7] Ensure products DB env exists in ${ENV_FILE}"
 if [[ -f "${ENV_FILE}" ]]; then
   if ! grep -q "^PRODUCTS_DB_NAME=" "${ENV_FILE}"; then
     echo "PRODUCTS_DB_NAME=${DEFAULT_PRODUCTS_DB}" >> "${ENV_FILE}"
@@ -70,12 +89,12 @@ else
 fi
 echo
 
-echo "[5/6] Switch legacy compose to symlink"
+echo "[6/7] Switch legacy compose to symlink"
 ln -sfn "${CANONICAL_COMPOSE_PATH}" "${LEGACY_COMPOSE_PATH}"
 echo "Symlink set: ${LEGACY_COMPOSE_PATH} -> ${CANONICAL_COMPOSE_PATH}"
 echo
 
-echo "[6/6] Recreate backend and run verification"
+echo "[7/7] Recreate backend and run verification"
 docker compose -p "${PROJECT_NAME}" -f "${LEGACY_COMPOSE_PATH}" config >/dev/null
 docker compose -p "${PROJECT_NAME}" -f "${LEGACY_COMPOSE_PATH}" up -d --build --force-recreate "${SERVICE_NAME}"
 

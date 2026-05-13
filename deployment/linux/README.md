@@ -7,6 +7,7 @@
 - Canonical compose (ใน repo): `tools/docker/docker-compose.prod.yml`
 - Legacy path ที่คำสั่งเดิมเรียก: `deployment/linux/docker-compose.prod.yml`
 - แนวทางที่ใช้: ทำ symlink จาก legacy path ไป canonical path เพื่อลด config drift
+- Canonical compose ปัจจุบันตั้งเป็น `build` mode (`linux-frontend`, `linux-backend`) เพื่อให้รันได้ใน production ที่ไม่ใช้ private registry
 
 ## ไฟล์สำคัญในโฟลเดอร์นี้
 
@@ -23,6 +24,7 @@
 ```bash
 cd /opt/workplansV10-1/deployment/linux
 chmod +x cutover-compose-source.sh rollback-compose-source.sh
+docker compose -p linux -f /opt/workplansV10-1/tools/docker/docker-compose.prod.yml config
 ./cutover-compose-source.sh
 ```
 
@@ -30,10 +32,11 @@ chmod +x cutover-compose-source.sh rollback-compose-source.sh
 
 1. pre-check stack ที่ใช้งานจริง
 2. verify ว่า canonical compose มี `PRODUCTS_DB_NAME`
-3. backup `deployment/linux/docker-compose.prod.yml`
-4. ตั้งค่า `PRODUCTS_DB_NAME` ใน `deployment/linux/.env` ถ้ายังไม่มี
-5. เปลี่ยนไฟล์ legacy เป็น symlink ไป canonical compose
-6. recreate `backend` และตรวจ smoke test API
+3. validate canonical runtime readiness (กันเคส image placeholder)
+4. backup `deployment/linux/docker-compose.prod.yml`
+5. ตั้งค่า `PRODUCTS_DB_NAME` ใน `deployment/linux/.env` ถ้ายังไม่มี
+6. เปลี่ยนไฟล์ legacy เป็น symlink ไป canonical compose
+7. recreate `backend` และตรวจ smoke test API
 
 ## Rollback
 

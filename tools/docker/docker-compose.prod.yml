@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   frontend:
-    image: ${DOCKER_USERNAME:-yourusername}/workplanv6-frontend:${VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: linux-frontend
     ports:
       - "3011:3011"
     environment:
@@ -16,7 +19,10 @@ services:
       - workplan-network
 
   backend:
-    image: ${DOCKER_USERNAME:-yourusername}/workplanv6-backend:${VERSION:-latest}
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    image: linux-backend
     ports:
       - "3101:3101"
     environment:
