@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { X } from "lucide-react"
 import { formatDateForDisplay } from "@/lib/dateUtils"
 import { getOperatorsArray } from "@/lib/utils"
+import { getStaffImage, getStaffInitial } from "@/lib/staffAvatar"
 import { User } from "@/types/production"
 import { TimeTableJob, TimeTableData, WorkerRowData } from "./timetable/types"
 import { TIMETABLE_CONSTANTS } from "./timetable/constants"
@@ -17,38 +18,6 @@ import {
   calculateDuration,
   isLunchSlot,
 } from "./timetable/utils"
-
-// ข้อมูลรูปภาพพนักงาน
-const staffImages: { [key: string]: string } = {
-  // ชื่อไทย
-  จรัญ: "/images/staff/จรัญ.jpeg",
-  แมน: "/images/staff/แมน.jpg",
-  แจ็ค: "/images/staff/แจ็ค.jpg",
-  ป้าน้อย: "/images/staff/ป้าน้อย.jpg",
-  พี่ตุ่น: "/images/staff/พี่ตุ่น.jpg",
-  เอ: "/images/staff/เอ.jpg",
-  โอเล่: "/images/staff/โอเล่.jpg",
-  พี่ภา: "/images/staff/พี่ภา.jpg",
-  อาร์ม: "/images/staff/อาร์ม.jpg",
-  สาม: "/images/staff/สาม.jpg",
-  มิ้นต์: "/placeholder.svg?height=80&width=80&text=มิ้นต์",
-  นิค: "/placeholder.svg?height=80&width=80&text=นิค",
-  เกลือ: "/placeholder.svg?height=80&width=80&text=เกลือ",
-  เป้ง: "/placeholder.svg?height=80&width=80&text=เป้ง",
-  // id_code
-  arm: "/images/staff/อาร์ม.jpg",
-  saam: "/images/staff/สาม.jpg",
-  toon: "/images/staff/พี่ตุ่น.jpg",
-  man: "/images/staff/แมน.jpg",
-  sanya: "/images/staff/พี่สัญญา.jpg",
-  noi: "/images/staff/ป้าน้อย.jpg",
-  pha: "/images/staff/พี่ภา.jpg",
-  ae: "/images/staff/เอ.jpg",
-  rd: "/images/staff/RD.jpg",
-  Ola: "/images/staff/โอเล่.jpg",
-  JJ: "/images/staff/จรัญ.jpeg",
-  Jak: "/images/staff/แจ็ค.jpg",
-}
 
 // พาเลตสีแบบ tailwind ตามที่ผู้ใช้กำหนด (โทนอ่อน)
 export const COLOR_PALETTE = [
@@ -462,11 +431,17 @@ function TimeTable({ jobs, users }: { jobs: TimeTableJob[], users: User[] }) {
                 <tr key={`person-${row.name}-${idx}`} className="border-b-2 border-gray-300">
                   <td className="sticky left-0 z-10 px-4 py-3 bg-white border-r-2 border-b border-gray-300 whitespace-nowrap align-top text-2xl md:text-4xl">
                     <div className="flex items-center space-x-3">
-                      <img 
-                        src={staffImages[row.name] || "/placeholder-user.jpg"} 
-                        alt={row.name} 
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-300 shadow-sm" 
-                      />
+                      {getStaffImage(row.name) ? (
+                        <img 
+                          src={getStaffImage(row.name)} 
+                          alt={row.name} 
+                          className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-300 shadow-sm" 
+                        />
+                      ) : (
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-green-600 text-white text-[20px] md:text-[22px] font-semibold border-2 border-gray-300 shadow-sm flex items-center justify-center">
+                          {getStaffInitial(row.name)}
+                        </div>
+                      )}
                       <div className="flex flex-col">
                         <span className="font-bold text-lg md:text-2xl text-gray-900">{row.name}</span>
                         {jobCount > 0 && (

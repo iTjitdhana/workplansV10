@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Clock } from 'lucide-react';
+import { getStaffImage, getStaffInitial } from '@/lib/staffAvatar';
 
 interface Job {
   id: string;
@@ -21,7 +22,6 @@ interface User {
 interface TimeTableProps {
   jobs: Job[];
   users: User[];
-  staffImages: Record<string, string>;
   selectedDate: string;
   formatDateForDisplay: (date: Date, format: 'full' | 'short') => string;
   isOpen: boolean;
@@ -199,7 +199,6 @@ function expandJobsByOperators(jobs: Job[]): Job[] {
 export default function TimeTable({ 
   jobs, 
   users, 
-  staffImages, 
   selectedDate, 
   formatDateForDisplay, 
   isOpen, 
@@ -270,11 +269,17 @@ export default function TimeTable({
                   <tr key={row.name}>
                     <td className="p-2 border bg-white whitespace-nowrap sticky left-0 z-10">
                       <div className="flex items-center space-x-1 sm:space-x-2">
-                        <img 
-                          src={staffImages[row.name] || "/placeholder-user.jpg"} 
-                          alt={row.name} 
-                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" 
-                        />
+                        {getStaffImage(row.name) ? (
+                          <img 
+                            src={getStaffImage(row.name)} 
+                            alt={row.name} 
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" 
+                          />
+                        ) : (
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 text-white text-[14px] sm:text-[17px] font-semibold flex items-center justify-center flex-shrink-0">
+                            {getStaffInitial(row.name)}
+                          </div>
+                        )}
                         <span className="font-semibold text-xs sm:text-sm">{row.name}</span>
                       </div>
                     </td>

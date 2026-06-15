@@ -36,10 +36,11 @@ export interface ProductionItem {
   production_room?: string; // รองรับ property เก่า
   note?: string;
   notes?: string; // รองรับ property เก่า
-  status: 'draft' | 'active' | 'completed' | 'cancelled';
+  status: 'draft' | 'active' | 'completed' | 'cancelled' | 'งานผลิตถูกยกเลิก' | 'ยกเลิกการผลิต';
   status_id?: number; // สถานะการผลิต ID
   status_name?: string; // ชื่อสถานะ
   status_color?: string; // สีของสถานะ
+  recordStatus?: string;
   created_at: string;
   updated_at: string;
   work_plan_id?: string;

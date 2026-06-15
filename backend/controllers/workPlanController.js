@@ -313,9 +313,18 @@ class WorkPlanController {
         });
       }
       
-      // อนุญาตให้ลบเมื่อ workflow_status เป็น 'draft' หรือ 'completed'
+      // อนุญาตให้ลบเมื่อเป็นงานแบบร่าง/บันทึกเสร็จสิ้น
+      // รองรับข้อมูลเก่าที่ workflow_status อาจว่าง แต่ status_id ยังถูกต้อง
       const status = String(workPlan.workflow_status || '').toLowerCase();
-      if (status === 'draft' || status === 'completed') {
+      const statusId = Number(workPlan.status_id);
+      const isPrinted = Number(workPlan.is_printed) === 1;
+      const canDeleteByStatus =
+        status === 'draft' ||
+        status === 'completed' ||
+        statusId === 1 ||
+        statusId === 2;
+
+      if (canDeleteByStatus && !isPrinted) {
         const deleted = await WorkPlan.delete(id);
         if (deleted) {
           return res.json({ success: true, message: 'Draft work plan deleted successfully' });
